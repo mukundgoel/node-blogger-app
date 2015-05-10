@@ -9,48 +9,55 @@ module.exports = (app) => {
     // Use "email" field instead of "username"
     usernameField: 'username',
     failureFlash: true
-  }, nodeifyit(async (username, password) => {
+  }, nodeifyit(async(username, password) => {
 
+    // need to declare them globally so that they are accessible outside the if-else block
     let user
     let email
 
+    // check if username is an email address
     if (username.indexOf('@')) {
       email = username.toLowerCase()
-      user = await User.promise.findOne({email})
+      user = await User.promise.findOne({
+        email
+      })
     } else {
+      // search db w/ username using case insensitive search
       let regexp = new RegExp(username, 'i')
       user = await User.promise.findOne({
-        username: {$regexp: regexp}
+        username: {
+          $regexp: regexp
+        }
       })
-      console.log("User foudn :" + user)
     }
 
-    // Do error validation
-    console.log("user is: " + user)
-
     if (!email) {
-       if (!user || username !== user.username) {
-          return [false, {
+      if (!user || username !== user.username) {
+        return [false, {
           message: 'Invalid username'
         }]
       }
     } else {
-        if (!user || email !== user.email) {
-          return [false, {
+      if (!user || email !== user.email) {
+        return [false, {
           message: 'Invalid email'
         }]
       }
     }
 
     if (!await user.validatePassword(password)) {
-      return [false, {message: 'Invalid password'}]
+      return [false, {
+        message: 'Invalid password'
+      }]
     }
 
     return user
-  }, {spread: true})))
+  }, {
+    spread: true
+  })))
 
-  passport.serializeUser(nodeifyit(async (user) => user._id))
-  passport.deserializeUser(nodeifyit(async (id) => {
+  passport.serializeUser(nodeifyit(async(user) => user._id))
+  passport.deserializeUser(nodeifyit(async(id) => {
     return await User.promise.findById(id)
   }))
 
@@ -59,23 +66,29 @@ module.exports = (app) => {
     usernameField: 'email',
     failureFlash: true,
     passReqToCallback: true
-  }, nodeifyit(async (req, email, password) => {
+  }, nodeifyit(async(req, email, password) => {
 
+    // set all the required params that we received to store in the database
     let username = req.body.username || ""
-    let title = req.body.title || ""
-    let description = req.body.description || ""
-      email = (email || '').toLowerCase()
-      // Is the email taken?
-      if (await User.promise.findOne({email})) {
-        return [false, {message: 'That email is already taken.'}]
-      }
-      console.log('here we go')
-      // create the user
-      let user = new User()
-      user.username = username
-      user.email = email
-      user.password = await user.generateHash(password)
 
-      return await user.save()
-  }, {spread: true})))
+    email = (email || '').toLowerCase()
+      // Is the email taken?
+    if (await User.promise.findOne({
+        email
+      })) {
+      return [false, {
+        message: 'That email is already taken.'
+      }]
+    }
+
+    // create the user
+    let user = new User()
+    user.username = username
+    user.email = email
+    user.password = await user.generateHash(password)
+
+    return await user.save()
+  }, {
+    spread: true
+  })))
 }
