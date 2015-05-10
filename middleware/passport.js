@@ -90,7 +90,7 @@ module.exports = (app) => {
     user.blogDescription = description
 
     // Use a password hash instead of plain-text
-    user.password = await user.generateHash(password)
+    user.password = password
 
     try {
       return await user.save()
