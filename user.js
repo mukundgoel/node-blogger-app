@@ -16,6 +16,8 @@ let userSchema = mongoose.Schema({
     type: String,
     required: true
   },
+  blogTitle: String,
+  blogDescription: String
 })
 
 userSchema.methods.generateHash = async function(password) {

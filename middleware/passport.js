@@ -68,26 +68,35 @@ module.exports = (app) => {
     passReqToCallback: true
   }, nodeifyit(async(req, email, password) => {
 
-    // set all the required params that we received to store in the database
-    let username = req.body.username || ""
-
     email = (email || '').toLowerCase()
       // Is the email taken?
-    if (await User.promise.findOne({
-        email
-      })) {
-      return [false, {
-        message: 'That email is already taken.'
-      }]
+    if (await User.promise.findOne({email})) {
+      return [false, {message: 'That email is already taken.'}]
+    }
+
+    let {username, title, description} = req.body
+
+    let regexp = new RegExp(username, 'i')
+    let query = {username: {$regex: regexp}}
+    if (await User.promise.findOne(query)) {
+      return [false, {message: 'That username is already taken.'}]
     }
 
     // create the user
     let user = new User()
     user.username = username
     user.email = email
+    user.blogTitle = title
+    user.blogDescription = description
+
+    // Use a password hash instead of plain-text
     user.password = await user.generateHash(password)
 
-    return await user.save()
+    try {
+      return await user.save()
+    } catch (e) {
+      return [false, {message: e.message}]
+    }
   }, {
     spread: true
   })))
