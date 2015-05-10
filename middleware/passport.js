@@ -7,18 +7,46 @@ module.exports = (app) => {
 
   passport.use(new LocalStrategy({
     // Use "email" field instead of "username"
-    usernameField: 'email',
+    usernameField: 'username',
     failureFlash: true
-  }, nodeifyit(async (email, password) => {
-    let user = await User.promise.findOne({email})
+  }, nodeifyit(async (username, password) => {
 
-    if (!user || email !== user.email) {
-      return [false, {message: 'Invalid username'}]
+    let user
+    let email
+    console.log(username + " , " + password)
+    console.log(username.indexOf('@') >= 0)
+    if (username.indexOf('@')) {
+      email = username.toLowerCase()
+      user = await User.promise.findOne({email})
+    } else {
+      let regexp = new RegExp(username, 'i')
+      user = await User.promise.findOne({
+        username: {$regexp: regexp}
+      })
+      console.log("User foudn :" + user)
+    }
+
+    // Do error validation
+    console.log("user is: " + user)
+
+    if (!email) {
+       if (!user || username !== user.username) {
+          return [false, {
+          message: 'Invalid username'
+        }]
+      }
+    } else {
+        if (!user || email !== user.email) {
+          return [false, {
+          message: 'Invalid email'
+        }]
+      }
     }
 
     if (!await user.validatePassword(password)) {
       return [false, {message: 'Invalid password'}]
     }
+
     return user
   }, {spread: true})))
 
@@ -30,19 +58,28 @@ module.exports = (app) => {
   passport.use('local-signup', new LocalStrategy({
     // Use "email" field instead of "username"
     usernameField: 'email',
-    failureFlash: true
-  }, nodeifyit(async (email, password) => {
+    failureFlash: true,
+    passReqToCallback: true
+  }, nodeifyit(async (req, email, password) => {
+
+    let username = req.body.username || ""
+    let title = req.body.title || ""
+    let description = req.body.description || ""
+    console.log("username is: " + username)
+    console.log("email is: " + email)
+    console.log("password is: " + password)
       email = (email || '').toLowerCase()
       // Is the email taken?
       if (await User.promise.findOne({email})) {
         return [false, {message: 'That email is already taken.'}]
       }
-
+      console.log('here we go')
       // create the user
       let user = new User()
+      user.username = username
       user.email = email
-      // Use a password hash instead of plain-text
       user.password = await user.generateHash(password)
+
       return await user.save()
   }, {spread: true})))
 }

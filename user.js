@@ -4,8 +4,18 @@ let bcrypt = require('bcrypt')
 require('songbird')
 
 let userSchema = mongoose.Schema({
-  email: String,
-  password: String
+  username: {
+    type: String,
+    required: true
+  },
+  email: {
+    type: String,
+    required: true
+  },
+  password: {
+    type: String,
+    required: true
+  },
 })
 
 userSchema.methods.generateHash = async function(password) {
