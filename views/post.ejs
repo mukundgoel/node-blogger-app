@@ -18,14 +18,14 @@
         <div class="alert alert-danger"><%= message %></div>
     <% } %>
 
-    <form action="/post<%= post.id %>" method="post" enctype="multipart/form-data">
+    <form action="/post/<%= post.id %>" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label>Title</label>
-            <input type="text" class="form-control" name="title">
+            <input type="text" class="form-control" name="title" value="<%= post.title %>">
         </div>
         <div class="form-group">
             <label>Content</label>
-            <input type="text" class="form-control" name="content">
+            <input type="text" class="form-control" name="content" value="<%= post.content %>">
         </div>
         <div class="form-group">
             <label>Image </label>

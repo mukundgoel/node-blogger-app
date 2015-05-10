@@ -13,7 +13,12 @@ let postSchema = mongoose.Schema({
   image: {
     data: Buffer,
     contentType: String
-  }
+  },
+   blogTitle: {
+    // This is a way to link a post to a blog (by using blog title)
+    type: String,
+    required: true
+  },
 })
 
 module.exports = mongoose.model('Post', postSchema)
