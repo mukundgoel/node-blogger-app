@@ -13,8 +13,7 @@ module.exports = (app) => {
 
     let user
     let email
-    console.log(username + " , " + password)
-    console.log(username.indexOf('@') >= 0)
+
     if (username.indexOf('@')) {
       email = username.toLowerCase()
       user = await User.promise.findOne({email})
@@ -65,9 +64,6 @@ module.exports = (app) => {
     let username = req.body.username || ""
     let title = req.body.title || ""
     let description = req.body.description || ""
-    console.log("username is: " + username)
-    console.log("email is: " + email)
-    console.log("password is: " + password)
       email = (email || '').toLowerCase()
       // Is the email taken?
       if (await User.promise.findOne({email})) {
