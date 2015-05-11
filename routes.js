@@ -83,7 +83,8 @@ module.exports = (app) => {
       post.content = content
       post.image.data = await fs.promise.readFile(file.path)
       post.image.contentType = file.headers['content-type']
-
+      post.date = new Date().toString()
+    
       // also store the blog title this post belongs to
       post.blogTitle = req.user.blogTitle
 
@@ -99,6 +100,7 @@ module.exports = (app) => {
       let [{title: [title], content: [content]},{image: [file]}] = await new multiparty.Form().promise.parse(req)
       post.title = title
       post.content = content
+      post.date = new Date().toString()
       await post.save()
       res.redirect('/blog/' + encodeURI(req.user.blogTitle))
   }))

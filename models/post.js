@@ -14,6 +14,10 @@ let postSchema = mongoose.Schema({
     data: Buffer,
     contentType: String
   },
+  date: {
+    type: String,
+    required: true
+  },
    blogTitle: {
     // This is a way to link a post to a blog (by using blog title)
     type: String,
